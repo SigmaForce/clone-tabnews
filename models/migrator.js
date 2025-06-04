@@ -1,4 +1,5 @@
 import database from "infra/database.js";
+import { ServiceError } from "infra/errors";
 import migrationRunner from "node-pg-migrate";
 import { resolve } from "node:path";
 
@@ -21,6 +22,12 @@ async function listPendingMigrations() {
     });
 
     return pendingMigrations;
+  } catch (error) {
+    const serviceErrorObject = new ServiceError({
+      message: "Erro ao listar as migrations",
+      cause: error,
+    });
+    throw serviceErrorObject;
   } finally {
     await dbClient?.end();
   }
@@ -38,6 +45,12 @@ async function runPendingMigrations() {
     });
 
     return migratedMigrations;
+  } catch (error) {
+    const serviceErrorObject = new ServiceError({
+      message: "Erro ao rodar as migrations",
+      cause: error,
+    });
+    throw serviceErrorObject;
   } finally {
     await dbClient?.end();
   }
